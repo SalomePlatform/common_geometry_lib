@@ -63,14 +63,6 @@ public:
   GEOMANATOOL_EXPORT
     Standard_Boolean UseTimer() const;
 
-  /// Set whether to output the error report in short form
-  GEOMANATOOL_EXPORT
-    void SetShortOutput(const Standard_Boolean aFlag);
-
-  /// Return whether the error report is output in short form
-  GEOMANATOOL_EXPORT
-    Standard_Boolean ShortOutput() const;
-
   /// Set whether to run the operation in parallel
   GEOMANATOOL_EXPORT
     void SetRunParallel(const Standard_Boolean aFlag);
@@ -91,14 +83,6 @@ public:
   GEOMANATOOL_EXPORT
     virtual void Perform();
 
-  /// Return whether the operation has failures
-  GEOMANATOOL_EXPORT
-    Standard_Boolean HasFailures() const;
-
-  /// Return the list of failed shapes
-  GEOMANATOOL_EXPORT
-    const TopTools_ListOfShape& Failures() const;
-
   /// Return the shape errors
   GEOMANATOOL_EXPORT
     const std::list<GeomAnaTool::ShapeError>& ShapeErrors() const;
@@ -107,42 +91,46 @@ public:
   GEOMANATOOL_EXPORT
     const TopoDS_Shape& Result() const;
 
+  /// Return the report on algorithm execution
+  GEOMANATOOL_EXPORT
+  const Handle(Message_Report) GetReport() const
+  { return myReport; }
+
+  /// Return true, if there are failures on algorithm execution
+  GEOMANATOOL_EXPORT
+  Standard_Boolean HasFailureAlerts() const;
+
 protected:
   /// Set the default values
   void SetDefaults();
 
   /// Perform the bfillds operation
-  /// Return the error code (0 if successful)
-  Standard_Integer Perform_bfillds();
+  void Perform_bfillds();
 
   /// Perform the bbuild operation
-  /// Return the error code (0 if successful)
-  Standard_Integer Perform_bbuild();
+  void Perform_bbuild();
 
   /// Perform the checkshape operation
-  /// Return the error code (0 if successful)
-  Standard_Integer Perform_checkshape();
-
-  /// Report the alerts from the sub-commands
-  void ReportAlerts(const Handle(Message_Report)& theReport);
+  void Perform_checkshape();
 
 private:
   TopTools_ListOfShape  myShapes;         // The arguments of the operation
   Standard_Boolean      myCheckGeometry;  // Whether to check the geometry (or topology only)
   Standard_Boolean      myUseTimer;       // Whether to use the timer
-  Standard_Boolean      myShortOutput;    // Whether to output the error report in short form
   Standard_Boolean      myRunParallel;    // Whether to run the operation in parallel
   Standard_Boolean      myExactCheck;     // Whether to perform exact check
   Standard_Boolean      myNonDestructive; // Whether to perform non-destructive operations
   Standard_Boolean      myUseOBB;         // Whether to use Oriented Bounding Boxes
   Standard_Real         myFuzzy;          // The fuzzy value
   BOPAlgo_GlueEnum      myGlue;           // The glue option
-  TopTools_ListOfShape  myFailures;       // The list of failed shapes
+
   TopoDS_Shape          myResult;         // The result shape of the operation (may be invalid)
   std::list<GeomAnaTool::ShapeError> myErrors;     // The list of shape errors
 
   std::shared_ptr<BOPAlgo_PaveFiller> myPaveFiller; // The pave filler
   std::shared_ptr<BOPAlgo_Builder>    myBuilder;    // The General Fuse algorithm for Boolean operations
+
+  Handle(Message_Report) myReport; // Errors of execution
 };
 
 #endif // GeomAnaTool_ExtractBOPFailure_HeaderFile
