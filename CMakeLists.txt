@@ -63,30 +63,11 @@ SET(BUILD_SHARED_LIBS TRUE)
 # User options 
 # ============
 INCLUDE(CMakeDependentOption)
-#OPTION(SALOME_BUILD_DOC "Generate SALOME COMMON GEOMETRY LIB documentation" ON)
-#OPTION(SALOME_BUILD_TESTS "Build SALOME COMMON GEOMETRY LIB tests" ON)
-
-# IF(SALOME_BUILD_TESTS)
-#   ENABLE_TESTING()
-# ENDIF()
-
-# Other optionals:
-# IF(SALOME_BUILD_DOC)
-#   FIND_PACKAGE(SalomeDoxygen)
-#   SALOME_LOG_OPTIONAL_PACKAGE(Doxygen SALOME_BUILD_DOC)
-# ENDIF()
 
 # OCCT
-message(STATUS "Find SalomeOpenCASCADE...")
 FIND_PACKAGE(SalomeOpenCASCADE REQUIRED)
-message(STATUS " * OPENCASCADE_ROOT_DIR .... ${OPENCASCADE_ROOT_DIR}")
-message(STATUS " * OpenCASCADE_INCLUDE_DIR . ${OpenCASCADE_INCLUDE_DIR}")
-message(STATUS " * OpenCASCADE_DEFINITIONS . ${OpenCASCADE_DEFINITIONS}")
-message(STATUS " * OpenCASCADE_LIBRARIES ... ${OpenCASCADE_LIBRARIES}")
-message(STATUS " * OpenCASCADE_FOUND ....... ${OpenCASCADE_FOUND}")
 
 # Detection summary:
-message(STATUS "Report and check Salome Package...")
 SALOME_PACKAGE_REPORT_AND_CHECK()
 
 # Directories
@@ -97,27 +78,12 @@ SET(CommonGeomLib_INSTALL_CMAKE_LOCAL cmake_files CACHE PATH "Install path: loca
 
 MARK_AS_ADVANCED(CommonGeomLib_INSTALL_LIBS CommonGeomLib_INSTALL_HEADERS CommonGeomLib_INSTALL_CMAKE_LOCAL)
 
-# Directories
-# (default values taken from KERNEL)
-# ===========
-#SET(SALOME_INSTALL_LIBS           "${SALOME_INSTALL_LIBS}"           CACHE PATH "Install path: SALOME libs")
-#SET(SALOME_INSTALL_HEADERS        "${SALOME_INSTALL_HEADERS}"        CACHE PATH "Install path: SALOME headers")
-#SET(SALOME_INSTALL_CMAKE          "${SALOME_INSTALL_CMAKE}"          CACHE PATH "Install path: SALOME CMake files")
-#SET(SALOME_INSTALL_CMAKE_LOCAL    "${SALOME_INSTALL_CMAKE_LOCAL}"    CACHE PATH "Install path: local SALOME CMake files")
-   
-#MARK_AS_ADVANCED(SALOME_INSTALL_BINS SALOME_INSTALL_LIBS SALOME_INSTALL_IDLS SALOME_INSTALL_HEADERS)
-#MARK_AS_ADVANCED(SALOME_INSTALL_SCRIPT_SCRIPTS SALOME_INSTALL_SCRIPT_DATA SALOME_INSTALL_SCRIPT_PYTHON)
-#MARK_AS_ADVANCED(SALOME_INSTALL_PYTHON SALOME_INSTALL_CMAKE SALOME_INSTALL_CMAKE_LOCAL SALOME_INSTALL_RES SALOME_INSTALL_DOC)
-
-
 # Header configuration
 # ====================
 SALOME_CONFIGURE_FILE(CommonGeomLib_version.h.in CommonGeomLib_version.h INSTALL ${CommonGeomLib_INSTALL_HEADERS})
-#SALOME_CONFIGURE_FILE(CommonGeomLib_version.h.in CommonGeomLib_version.h INSTALL ${SALOME_INSTALL_HEADERS})
 
 # Accumulate environment variables for CommonGeomLib module
 SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH NOCHECK ${CMAKE_INSTALL_PREFIX}/${CommonGeomLib_INSTALL_LIBS}) 
-#SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH NOCHECK ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_LIBS})
 
 # Sources
 # ========
@@ -135,7 +101,6 @@ SET(_${PROJECT_NAME}_exposed_targets
 )
 
 # Add all targets to the build-tree export set
-message(STATUS "Export targets...")
 EXPORT(TARGETS ${_${PROJECT_NAME}_exposed_targets}
   FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake)
 
@@ -145,8 +110,6 @@ EXPORT(TARGETS ${_${PROJECT_NAME}_exposed_targets}
 SET(OPENCASCADE_ROOT_DIR "${OPENCASCADE_ROOT_DIR}")
 
 SET(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDE_DIR}")
-#SET(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_BINARY_DIR}/include")
-message(STATUS "CONF_INCLUDE_DIRS: ${CONF_INCLUDE_DIRS}")
 
 # Build variables that will be expanded when configuring Salome<MODULE>Config.cmake:
 SALOME_CONFIGURE_PREPARE(OpenCASCADE)
@@ -162,20 +125,12 @@ WRITE_BASIC_PACKAGE_VERSION_FILE(${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVers
     COMPATIBILITY AnyNewerVersion)
 
 # Install the CMake configuration files:
-message(STATUS "Install the CMake configuration files...")
 INSTALL(FILES
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
   DESTINATION "${CommonGeomLib_INSTALL_CMAKE_LOCAL}")
 
-# # Install the export set for use with the install-tree
-message(STATUS "Install the export set for use with the install-tree...")
-message(STATUS "aaajfa TARGETS = ${TARGETS}")
-message(STATUS "aaajfa LIB_TARGETS = ${LIB_TARGETS}")
-message(STATUS "aaajfa PROJECT_NAME = ${PROJECT_NAME}")
-message(STATUS "aaajfa CommonGeomLib_INSTALL_CMAKE_LOCAL = ${CommonGeomLib_INSTALL_CMAKE_LOCAL}")
+# Install the export set for use with the install-tree
 INSTALL(EXPORT ${PROJECT_NAME}TargetGroup
         DESTINATION "${CommonGeomLib_INSTALL_CMAKE_LOCAL}" 
         FILE ${PROJECT_NAME}Targets.cmake)
-
-message(STATUS "Finished building CommonGeomLib.")

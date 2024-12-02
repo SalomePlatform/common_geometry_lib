@@ -85,7 +85,6 @@ void GeomAnaTool_ExtractBOPFailure::SetShapes(const TopTools_ListOfShape& theSha
     if (aShape.ShapeType() == TopAbs_COMPOUND)
     {
       myShapes.Clear();
-      TopTools_ListOfShape theShapes;
       for (TopoDS_Iterator it(aShape); it.More(); it.Next())
       {
         myShapes.Append(it.Value());
