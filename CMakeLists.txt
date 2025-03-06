@@ -64,6 +64,17 @@ SET(BUILD_SHARED_LIBS TRUE)
 # ============
 INCLUDE(CMakeDependentOption)
 
+# Find SalomeBootstrap
+# ===========
+SET(SALOMEBOOTSTRAP_ROOT_DIR $ENV{SALOMEBOOTSTRAP_ROOT_DIR} CACHE PATH "Path to the Salome Bootstrap")
+IF(EXISTS ${SALOMEBOOTSTRAP_ROOT_DIR})
+  FIND_PACKAGE(SalomeBootstrap REQUIRED)
+  ADD_DEFINITIONS(${SALOMEBOOTSTRAP_DEFINITIONS})
+  INCLUDE_DIRECTORIES(${SALOMEBOOTSTRAP_INCLUDE_DIRS})
+ELSE(EXISTS ${SALOMEBOOTSTRAP_ROOT_DIR})
+  MESSAGE(FATAL_ERROR "We absolutely need a Salome Bootstrap, please define SALOMEBOOTSTRAP_ROOT_DIR")
+ENDIF(EXISTS ${SALOMEBOOTSTRAP_ROOT_DIR})
+
 # OCCT
 FIND_PACKAGE(SalomeOpenCASCADE REQUIRED)
 
@@ -97,7 +108,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # List of targets in this project we want to make visible to the rest of the world.
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 SET(_${PROJECT_NAME}_exposed_targets
-  GeomAnaTool
+  GeomAnaTool BlockFix
 )
 
 # Add all targets to the build-tree export set

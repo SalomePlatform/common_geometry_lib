@@ -19,3 +19,6 @@
 
 # GeomAnaTool
 ADD_SUBDIRECTORY(GeomAnaTool)
+
+# BlockFix
+ADD_SUBDIRECTORY(BlockFix)
