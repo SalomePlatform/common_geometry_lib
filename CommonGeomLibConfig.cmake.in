@@ -95,3 +95,4 @@ SET(CommonGeomLib_INSTALL_CMAKE_LOCAL "@CommonGeomLib_INSTALL_BINS@")
 # Exposed CommonGeomLib targets:
 SET(CommonGeomLib_GeomAnaTool GeomAnaTool)
 SET(CommonGeomLib_BlockFix BlockFix)
+SET(CommonGeomLib_GEOMAlgo GEOMAlgo)
