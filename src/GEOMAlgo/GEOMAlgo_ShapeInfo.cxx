@@ -977,7 +977,7 @@ void GEOMAlgo_ShapeInfo::DumpEdge()const
       printf("  Knots\n");
       for (i=1; i<=myNbKnots; i++) {
         if (aHasMulti)
-          printf("  %3d : %.3lf  %.3lf\n", i, myKnots->Value(i), myMultiplicities->Value(i));
+          printf("  %3d : %.3lf  %3d\n", i, myKnots->Value(i), myMultiplicities->Value(i));
         else
           printf("  %3d : %.3lf\n", i, myKnots->Value(i));
       }

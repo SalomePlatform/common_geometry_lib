@@ -126,24 +126,12 @@ namespace GEOMAlgo_AlgoTools
                       const Standard_Real aU,
                       const Standard_Real aV,
                       gp_Pnt& aP3D) ;
+
   Standard_EXPORT
      Standard_Boolean ProjectPointOnShape(const gp_Pnt& aP1,
                                           const TopoDS_Shape& aS,
                                           gp_Pnt& aP2,
                                           const Handle(IntTools_Context)& aCtx) ;
-
-  Standard_EXPORT
-    void CorrectTolerances(const TopoDS_Shape& aShape,
-                           const Standard_Real aMaxTol=0.0001);
-
-  Standard_EXPORT
-    void CorrectPointOnCurve(const TopoDS_Shape& S,
-                             const Standard_Real aMaxTol=0.0001);
-
-  Standard_EXPORT
-    void CorrectCurveOnSurface(const TopoDS_Shape& S,
-                               const Standard_Real aMaxTol=0.0001);
-
 
   Standard_EXPORT
     Standard_Boolean IsSplitToReverse1 (const TopoDS_Edge& aEF1,
@@ -228,5 +216,23 @@ namespace GEOMAlgo_AlgoTools
                     const double theAngleDeflection = 0.5,
                     const bool isRelative = true,
                     const bool doPostCheck = false);
+
+  /*!
+   * \brief Adjust tolerances of all edges of \a theShape so that
+   *        the shape become valid if we check it with "exact" option.
+   *
+   *        Raise edge tolerances to maximum Curve On Surface distance.
+   *
+   *        Each edge of \a theShape is considered relative to
+   *        all faces of \a theShape to which it belongs.
+   *        Maximum deviation of its curve to all surfaces is MAXDEV.
+   *        If current edge tolerance is below MAXDEV, it will be set to MAXDEV.
+   *        If current edge tolerance exceeds MAXDEV, it will not be changed.
+   * \retval bool Returns true if it changed tolerance of at least one edge.
+   *
+   * \param theShape shape to be modified.
+   */
+  Standard_EXPORT
+    bool FixCurveOnSurfaceTolerances(const TopoDS_Shape& theShape);
 };
 #endif

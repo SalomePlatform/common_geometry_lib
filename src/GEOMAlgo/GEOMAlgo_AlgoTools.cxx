@@ -75,6 +75,8 @@
 
 #include <BRep_Tool.hxx>
 #include <BRep_Builder.hxx>
+#include <BRep_TEdge.hxx>
+#include <BRepLib_CheckCurveOnSurface.hxx>
 #include <BRepLib_MakeVertex.hxx>
 
 #include <BRepTools.hxx>
@@ -1739,4 +1741,32 @@ bool GEOMAlgo_AlgoTools::MeshShape( const TopoDS_Shape theShape,
 
   GEOMAlgo_AlgoTools_CanBeMeshed(theShape, /*theCheckMesh*/true, alreadyMeshed);
   return alreadyMeshed;
+}
+
+//=======================================================================
+//function : FixCurveOnSurfaceTolerances
+//purpose  :
+//=======================================================================
+bool GEOMAlgo_AlgoTools::FixCurveOnSurfaceTolerances(const TopoDS_Shape& theShape)
+{
+  bool isChanged = false;
+  for (TopExp_Explorer exf(theShape, TopAbs_FACE); exf.More(); exf.Next()) {
+    TopoDS_Face aFace = TopoDS::Face(exf.Current());
+    for (TopExp_Explorer exe(aFace, TopAbs_EDGE); exe.More(); exe.Next()) {
+      TopoDS_Edge anEdge = TopoDS::Edge(exe.Current());
+      BRepLib_CheckCurveOnSurface aCS;
+      aCS.Init(anEdge, aFace);
+      aCS.Perform();
+      if (aCS.IsDone()) {
+        Standard_Real prec = BRep_Tool::Tolerance(anEdge);
+        Standard_Real precExact = aCS.MaxDistance();
+        if (precExact > prec) {
+          const Handle(BRep_TEdge)& TE = *((Handle(BRep_TEdge)*)&anEdge.TShape());
+          TE->Tolerance(precExact);
+          isChanged = true;
+        }
+      }
+    }
+  }
+  return isChanged;
 }
