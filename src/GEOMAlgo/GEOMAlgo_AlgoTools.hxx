@@ -39,9 +39,10 @@
 
 #include <TopAbs_ShapeEnum.hxx>
 
-#include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Edge.hxx>
+#include <TopoDS_Wire.hxx>
+#include <TopoDS_Face.hxx>
 #include <TopoDS_Compound.hxx>
 
 #include <TopTools_ListOfShape.hxx>
@@ -187,6 +188,18 @@ namespace GEOMAlgo_AlgoTools
      void CopyShape(const TopoDS_Shape& aS,
                     TopoDS_Shape& aSC,
                     TopTools_IndexedDataMapOfShapeShape& aMSS) ;
+  
+  Standard_EXPORT
+     Standard_Integer FindRegion(const TopoDS_Shape& theShape,
+                                 const TopoDS_Face& theStartFace,
+                                 const TopTools_ListOfShape& theBoundaryEdges,
+                                 TopTools_ListOfShape& theRegionFaces);
+
+  Standard_EXPORT
+     Standard_Integer FindRegion(const TopoDS_Shape& theShape,
+                                 const TopoDS_Face& theStartFace,
+                                 const TopoDS_Wire& theBoundary,
+                                 TopTools_ListOfShape& theRegionFaces);
 
   /*!
    * \brief Get default deflection coefficient used for triangulation

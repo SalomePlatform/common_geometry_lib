@@ -27,11 +27,15 @@
 
 #include <GEOMAlgo_ListOfCoupleOfShapes.hxx>
 #include <GEOMAlgo_IndexedDataMapOfShapeIndexedMapOfShape.hxx>
-#include <TopTools_IndexedMapOfShape.hxx>
 #include <GEOMAlgo_CoupleOfShapes.hxx>
-#include <TopoDS_Shape.hxx>
-#include <TopTools_IndexedMapOfShape.hxx>
 
+#include <TopoDS.hxx>
+#include <TopExp.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopTools_IndexedMapOfShape.hxx>
+#include <TopTools_MapOfShape.hxx>
+
+#include <stack>
 
 
 static
@@ -39,6 +43,7 @@ static
                     const GEOMAlgo_IndexedDataMapOfShapeIndexedMapOfShape& aMCV,
                     TopTools_IndexedMapOfShape& aProcessed,
                     TopTools_IndexedMapOfShape& aChain);
+
 
 //=======================================================================
 // function: FindChains
@@ -84,6 +89,7 @@ void GEOMAlgo_AlgoTools::FindChains(const GEOMAlgo_ListOfCoupleOfShapes& aLCS,
   }
   GEOMAlgo_AlgoTools::FindChains(aMCV, aMapChains);
 }
+
 //=======================================================================
 // function: FindChains
 // purpose :
@@ -114,6 +120,7 @@ void GEOMAlgo_AlgoTools::FindChains(const GEOMAlgo_IndexedDataMapOfShapeIndexedM
     aChain.Clear();
   }
 }
+
 //=======================================================================
 // function: ProcessBlock
 // purpose:
@@ -139,3 +146,88 @@ void ProcessBlock(const TopoDS_Shape& aF,
   }
 }
 
+//=======================================================================
+// function: FindRegion
+// purpose :
+//=======================================================================
+Standard_Integer GEOMAlgo_AlgoTools::FindRegion(const TopoDS_Shape& theShape,
+            const TopoDS_Face& theStartFace,
+            const TopTools_ListOfShape& theBoundaryEdges,
+            TopTools_ListOfShape& theRegionFaces)
+{
+  // Build Edge -> Faces adjacency map
+  TopTools_IndexedDataMapOfShapeListOfShape edgeFaceMap;
+  TopExp::MapShapesAndAncestors(theShape, TopAbs_EDGE, TopAbs_FACE, edgeFaceMap);
+
+  // Extract edges from the boundary wire
+  TopTools_MapOfShape boundaryEdges;
+  for (TopTools_ListIteratorOfListOfShape it(theBoundaryEdges); it.More(); it.Next())
+  {
+    boundaryEdges.Add(TopoDS::Edge(it.Value()));
+  }
+
+  // Grow the region starting from the given face until the boundary edges are reached
+  TopTools_MapOfShape visitedFaces;
+  std::stack<TopoDS_Face> stack;
+  stack.push(theStartFace);
+
+  while (!stack.empty())
+  {
+    TopoDS_Face currentFace = stack.top();
+    stack.pop();
+
+    if (visitedFaces.Contains(currentFace))
+      continue;
+
+    visitedFaces.Add(currentFace);
+    theRegionFaces.Append(currentFace);
+
+    // Explore neighboring faces through edges
+    for (TopExp_Explorer eExp(currentFace, TopAbs_EDGE); eExp.More(); eExp.Next())
+    {
+      const TopoDS_Edge& edge = TopoDS::Edge(eExp.Current());
+
+      // Stop traversal at boundary edges
+      if (boundaryEdges.Contains(edge))
+        continue;
+
+      if (!edgeFaceMap.Contains(edge))
+        continue;
+
+      const TopTools_ListOfShape& adjFaces = edgeFaceMap.FindFromKey(edge);
+      for (TopTools_ListIteratorOfListOfShape it(adjFaces); it.More(); it.Next())
+      {
+        const TopoDS_Face& adjFace = TopoDS::Face(it.Value());
+
+        if (!visitedFaces.Contains(adjFace))
+        {
+          stack.push(adjFace);
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+
+
+//=======================================================================
+// function: FindRegion
+// purpose :
+//=======================================================================
+Standard_Integer GEOMAlgo_AlgoTools::FindRegion(const TopoDS_Shape& theShape,
+            const TopoDS_Face& theStartFace,
+            const TopoDS_Wire& theBoundary,
+            TopTools_ListOfShape& theRegionFaces)
+{
+  // Extract edges from the boundary wire
+  TopTools_ListOfShape boundaryEdges;
+  for (TopExp_Explorer eExp(theBoundary, TopAbs_EDGE); eExp.More(); eExp.Next())
+  {
+    const TopoDS_Edge& edge = TopoDS::Edge(eExp.Current());
+    boundaryEdges.Append(edge);
+  }
+
+  return FindRegion(theShape, theStartFace, boundaryEdges, theRegionFaces);
+}
